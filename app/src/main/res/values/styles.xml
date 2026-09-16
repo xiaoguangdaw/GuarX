@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Theme.GuardX —— 应用主题。
+
+      必须继承 AppCompat 主题，因为 MainActivity 继承自 AppCompatActivity，
+      否则运行时会直接崩溃（"You need to use a Theme.AppCompat theme"）。
+
+      windowBackground 设为深色，避免 WebView 加载瞬间白屏闪一下。
+    -->
+    <style name="Theme.GuardX" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+</resources>
