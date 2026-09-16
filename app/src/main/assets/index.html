@@ -1,807 +1,1011 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Anti-Wipe Guard · 防格机守护</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>小光守护</title>
 <style>
-/* ============ 主题变量 ============ */
-:root{
-  --bg-1:#e8ecf4;
-  --bg-2:#f6f7fb;
-  --blob-1:#7aa2ff;
-  --blob-2:#ff9ec7;
-  --blob-3:#8ce0cf;
-  --glass-bg:rgba(255,255,255,.55);
-  --glass-brd:rgba(255,255,255,.75);
-  --card-bg:rgba(255,255,255,.45);
-  --text:#1c1f26;
-  --text-sub:#5f6879;
-  --accent:#0a84ff;
-  --accent-soft:rgba(10,132,255,.14);
-  --danger:#ff3b30;
-  --warn:#ff9f0a;
-  --ok:#34c759;
-  --shadow:0 10px 30px rgba(20,30,60,.10);
-  --radius:22px;
-}
-html[data-theme="dark"]{
-  --bg-1:#0d1017;
-  --bg-2:#151a24;
-  --blob-1:#2b4d8f;
-  --blob-2:#7a2f5c;
-  --blob-3:#1f6b5e;
-  --glass-bg:rgba(28,32,42,.55);
-  --glass-brd:rgba(255,255,255,.12);
-  --card-bg:rgba(30,35,46,.5);
-  --text:#eef1f6;
-  --text-sub:#9aa4b6;
-  --accent:#4da3ff;
-  --accent-soft:rgba(77,163,255,.18);
-  --shadow:0 10px 30px rgba(0,0,0,.45);
-}
-html[data-theme="mint"]{
-  --bg-1:#e2f5ef;
-  --bg-2:#f4fbf8;
-  --blob-1:#5fd0b0;
-  --blob-2:#a0e6c8;
-  --blob-3:#7cc4ff;
-  --glass-bg:rgba(255,255,255,.55);
-  --glass-brd:rgba(255,255,255,.8);
-  --card-bg:rgba(255,255,255,.45);
-  --text:#123730;
-  --text-sub:#4e756c;
-  --accent:#0f9d78;
-  --accent-soft:rgba(15,157,120,.15);
-  --shadow:0 10px 30px rgba(15,80,60,.12);
-}
-html[data-theme="dusk"]{
-  --bg-1:#1a1430;
-  --bg-2:#241b44;
-  --blob-1:#7b5cff;
-  --blob-2:#ff6ec7;
-  --blob-3:#4ec3ff;
-  --glass-bg:rgba(44,34,78,.55);
-  --glass-brd:rgba(255,255,255,.14);
-  --card-bg:rgba(50,38,88,.5);
-  --text:#f0ebff;
-  --text-sub:#b3a6d9;
-  --accent:#b39dff;
-  --accent-soft:rgba(179,157,255,.18);
-  --shadow:0 10px 30px rgba(0,0,0,.5);
-}
-
-/* ============ 基础 ============ */
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+/* ============================================================
+   小光守护 v2 · iOS Glassmorphism
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
 body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  color:var(--text);
-  background:var(--bg-1);
-  transition:background .4s,color .3s;
-  overflow-x:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Microsoft YaHei","Hiragino Sans","Noto Sans JP",sans-serif;
+  font-size:15px;color:var(--fg);background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 14px 108px 14px;
+  transition:background .3s,color .3s;overflow-x:hidden;
 }
-.bg-wrap{position:fixed;inset:0;z-index:-1;overflow:hidden;background:linear-gradient(160deg,var(--bg-1),var(--bg-2))}
-.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:float 16s ease-in-out infinite}
-.blob.b1{width:52vw;height:52vw;background:var(--blob-1);top:-12vw;left:-10vw}
-.blob.b2{width:46vw;height:46vw;background:var(--blob-2);bottom:-14vw;right:-10vw;animation-delay:-5s}
-.blob.b3{width:40vw;height:40vw;background:var(--blob-3);top:40%;left:45%;animation-delay:-9s}
-@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(3vw,-4vw) scale(1.08)}66%{transform:translate(-3vw,3vw) scale(.94)}}
-
-/* ============ 布局 ============ */
-.app{max-width:560px;margin:0 auto;padding:18px 16px 120px;min-height:100%}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 16px}
-.brand{display:flex;align-items:center;gap:10px}
-.brand .logo{
-  width:40px;height:40px;border-radius:13px;display:grid;place-items:center;
-  background:linear-gradient(140deg,var(--accent),var(--blob-2));
-  box-shadow:var(--shadow);color:#fff;font-size:19px;
+:root{
+  --fg:#f2f5f8; --sub:#9aa6b4; --line:rgba(255,255,255,.14);
+  --glass:rgba(255,255,255,.09); --glass2:rgba(255,255,255,.06);
+  --glass-hi:rgba(255,255,255,.20);
+  --accent:#4dd4ac; --danger:#ff5c6c; --warn:#ffc44d; --info:#5ac8fa;
+  --shadow:0 8px 30px rgba(0,0,0,.30);
+  --radius:22px; --radius-s:16px; --blur:22px;
+  --blob1:#1f6f5c; --blob2:#2b4a8c; --blob3:#6a2b7a; --bg:#070c11;
 }
-.brand h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}
-.brand p{margin:2px 0 0;font-size:11.5px;color:var(--text-sub)}
-.icon-btn{
-  width:40px;height:40px;border-radius:50%;border:1px solid var(--glass-brd);
-  background:var(--glass-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  color:var(--text);font-size:17px;cursor:pointer;display:grid;place-items:center;
-  transition:transform .18s,background .3s;box-shadow:var(--shadow);
+body[data-theme="light"]{
+  --fg:#101820; --sub:#6a7683; --line:rgba(0,0,0,.10);
+  --glass:rgba(255,255,255,.62); --glass2:rgba(255,255,255,.45);
+  --glass-hi:rgba(255,255,255,.85);
+  --accent:#0a9e78; --danger:#e5323f; --warn:#c57900; --info:#0b7fd4;
+  --shadow:0 8px 28px rgba(20,35,55,.14);
+  --blob1:#8ce8c8; --blob2:#a8c8ff; --blob3:#f0b8e8; --bg:#eef2f7;
 }
-.icon-btn:active{transform:scale(.92)}
-
-.glass{
-  background:var(--glass-bg);
-  border:1px solid var(--glass-brd);
-  backdrop-filter:blur(22px) saturate(150%);
-  -webkit-backdrop-filter:blur(22px) saturate(150%);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  transition:background .4s,border-color .4s;
+body[data-theme="dusk"]{
+  --fg:#f4ecff; --sub:#a99cc2; --line:rgba(255,255,255,.15);
+  --glass:rgba(255,255,255,.10); --glass2:rgba(255,255,255,.07);
+  --glass-hi:rgba(255,255,255,.22);
+  --accent:#c39bff; --danger:#ff7a9c; --warn:#ffd166; --info:#7fd4ff;
+  --blob1:#5b2e8c; --blob2:#8c2b6a; --blob3:#2b3a8c; --bg:#12081c;
 }
-
-.status-card{padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
-.status-head{display:flex;align-items:center;gap:14px}
-.ring{
-  width:60px;height:60px;border-radius:50%;flex:0 0 auto;
-  display:grid;place-items:center;position:relative;
-  background:conic-gradient(var(--ok) 0turn 1turn);
-  transition:background .5s;
+body[data-theme="ocean"]{
+  --fg:#eaf6ff; --sub:#8fb0c8; --line:rgba(255,255,255,.14);
+  --glass:rgba(255,255,255,.09); --glass2:rgba(255,255,255,.06);
+  --glass-hi:rgba(255,255,255,.20);
+  --accent:#3fd6ff; --danger:#ff6b7f; --warn:#ffcf5c; --info:#6ee7ff;
+  --blob1:#0b4f6c; --blob2:#0a2f6c; --blob3:#125f7a; --bg:#040d14;
 }
-.ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--bg-2);opacity:.94}
-html[data-theme="dark"] .ring::after,html[data-theme="dusk"] .ring::after{background:#171c26}
-.ring .core{position:relative;z-index:2;font-size:22px}
-.status-meta h2{margin:0;font-size:16px;font-weight:640}
-.status-meta p{margin:3px 0 0;font-size:12.5px;color:var(--text-sub)}
-.pill{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
-.pill.ok{background:rgba(52,199,89,.16);color:var(--ok)}
-.pill.warn{background:rgba(255,159,10,.18);color:var(--warn)}
-.pill.danger{background:rgba(255,59,48,.16);color:var(--danger)}
-
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 14px}
-.stat{padding:13px 10px;text-align:center;border-radius:16px;background:var(--card-bg);border:1px solid var(--glass-brd)}
-.stat b{display:block;font-size:19px;font-weight:700}
-.stat span{font-size:11px;color:var(--text-sub)}
-
-.sec-title{font-size:12.5px;font-weight:700;color:var(--text-sub);letter-spacing:.6px;margin:20px 4px 9px;text-transform:uppercase}
-
-.list{padding:6px}
-.row{display:flex;align-items:center;gap:13px;padding:13px 12px;border-radius:16px;transition:background .2s}
-.row+.row{border-top:1px solid rgba(128,128,128,.13)}
-.row:active{background:var(--accent-soft)}
-.row .ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;flex:0 0 auto;background:var(--accent-soft)}
-.row .txt{flex:1;min-width:0}
-.row .txt b{display:block;font-size:14px;font-weight:560}
-.row .txt small{display:block;font-size:11.5px;color:var(--text-sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .val{font-size:12.5px;color:var(--text-sub)}
-
-.switch{position:relative;width:50px;height:30px;flex:0 0 auto}
-.switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:relative;z-index:2}
-.slider{position:absolute;inset:0;border-radius:999px;background:rgba(128,128,128,.35);transition:background .28s}
-.slider::before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .28s cubic-bezier(.4,1.4,.6,1);box-shadow:0 2px 6px rgba(0,0,0,.25)}
-.switch input:checked~.slider{background:var(--ok)}
-.switch input:checked~.slider::before{transform:translateX(20px)}
-
-.btn{border:none;border-radius:14px;padding:12px 16px;font-size:14px;font-weight:600;background:var(--accent);color:#fff;cursor:pointer;transition:transform .16s,opacity .2s;width:100%}
-.btn:active{transform:scale(.97)}
-.btn.ghost{background:var(--card-bg);color:var(--text);border:1px solid var(--glass-brd)}
-.btn.danger{background:var(--danger)}
-.btn-row{display:flex;gap:10px;margin:8px 4px 0}
-.btn-row .btn{flex:1;width:auto}
-
-.themes{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;padding:14px}
-.theme-item{text-align:center;cursor:pointer}
-.theme-dot{width:100%;aspect-ratio:1;border-radius:16px;border:2px solid transparent;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;background:var(--card-bg)}
-.theme-item:active .theme-dot{transform:scale(.94)}
-.theme-item.active .theme-dot{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.theme-name{font-size:11px;color:var(--text-sub);margin-top:6px}
-.theme-dot i{position:absolute;width:60%;height:60%;border-radius:50%;filter:blur(12px)}
-.theme-dot i:nth-child(1){top:-8%;left:-6%}
-.theme-dot i:nth-child(2){bottom:-10%;right:-8%}
-
-.logs{padding:8px;max-height:270px;overflow-y:auto}
-.log-item{display:flex;gap:11px;padding:11px 10px;border-radius:14px;font-size:12.5px;align-items:flex-start}
-.log-item+.log-item{margin-top:2px}
-.log-item .dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:0 0 auto}
-.log-item .body{flex:1;min-width:0}
-.log-item .body b{font-size:12.8px;font-weight:620;display:block}
-.log-item .body p{margin:2px 0 0;color:var(--text-sub);font-size:11.5px;word-break:break-all}
-.log-item .time{font-size:10.5px;color:var(--text-sub);flex:0 0 auto}
-.log-empty{text-align:center;padding:26px 10px;color:var(--text-sub);font-size:12.5px}
-
-.sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s;z-index:80}
-.sheet-mask.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:90;max-width:560px;margin:0 auto;border-radius:26px 26px 0 0;padding:20px 18px calc(28px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .42s cubic-bezier(.32,1.1,.5,1);max-height:88vh;overflow-y:auto}
-.sheet.show{transform:translateY(0)}
-.sheet-grab{width:38px;height:5px;border-radius:99px;background:rgba(128,128,128,.4);margin:0 auto 16px}
-.sheet h3{margin:0 0 4px;font-size:17px;font-weight:650}
-.sheet .sub{margin:0 0 16px;font-size:12.5px;color:var(--text-sub)}
-
-.avatar{width:74px;height:74px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font-size:29px;font-weight:700;color:#fff;background:linear-gradient(140deg,var(--accent),var(--blob-2));box-shadow:var(--shadow)}
-.field{margin-bottom:13px}
-.field label{display:block;font-size:12px;color:var(--text-sub);margin:0 0 6px 4px;font-weight:600}
-.field input{width:100%;padding:13px 15px;border-radius:15px;border:1px solid var(--glass-brd);background:var(--card-bg);color:var(--text);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
-.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-
-.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);display:none;place-items:center;z-index:120;padding:22px}
-.modal-mask.show{display:grid}
-.modal{max-width:360px;width:100%;border-radius:26px;padding:26px 22px;text-align:center;background:var(--glass-bg);border:1px solid var(--glass-brd);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);animation:pop .4s cubic-bezier(.3,1.5,.5,1)}
-@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.modal .big{width:66px;height:66px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;font-size:31px;background:rgba(255,59,48,.16)}
-.modal h3{margin:0 0 8px;font-size:18px;font-weight:680}
-.modal p{margin:0 0 8px;font-size:13px;color:var(--text-sub);line-height:1.6}
-.modal .path{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;word-break:break-all;background:var(--card-bg);border:1px solid var(--glass-brd);border-radius:12px;padding:10px 12px;margin:12px 0;color:var(--danger);text-align:left}
-.modal .note{font-size:11px;color:var(--text-sub);text-align:left;background:var(--accent-soft);padding:9px 12px;border-radius:12px;line-height:1.55}
-
-.toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,80px);z-index:200;padding:12px 20px;border-radius:16px;font-size:13px;font-weight:600;background:var(--glass-bg);border:1px solid var(--glass-brd);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow);opacity:0;transition:all .38s cubic-bezier(.3,1.3,.5,1);max-width:88vw;text-align:center}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-
-.foot{text-align:center;font-size:11px;color:var(--text-sub);margin-top:22px;line-height:1.7;padding:0 10px}
+.blobs{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg);}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.75;}
+.b1{width:60vw;height:60vw;background:var(--blob1);top:-14vw;left:-16vw;}
+.b2{width:56vw;height:56vw;background:var(--blob2);top:26vh;right:-20vw;}
+.b3{width:66vw;height:66vw;background:var(--blob3);bottom:-24vw;left:-8vw;}
+body[data-theme="light"] .blob{opacity:.55;filter:blur(60px);}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);
+  backdrop-filter:blur(var(--blur)) saturate(180%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(180%);
+  box-shadow:var(--shadow);position:relative;}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%);opacity:.75;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+.brand{display:flex;align-items:center;gap:11px;min-width:0;}
+.logo{width:42px;height:42px;border-radius:14px;flex:0 0 auto;
+  background:linear-gradient(140deg,rgba(255,255,255,.34),rgba(255,255,255,.06));
+  border:1px solid var(--glass-hi);display:flex;align-items:center;justify-content:center;
+  font-size:21px;box-shadow:0 6px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.brand h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px;white-space:nowrap;}
+.brand p{margin:3px 0 0 0;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.icon-btn{width:40px;height:40px;border-radius:13px;flex:0 0 auto;font-size:17px;cursor:pointer;
+  background:var(--glass);border:1px solid var(--line);color:var(--fg);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;}
+.icon-btn:active{transform:scale(.94);}
+.hero{padding:18px;margin-bottom:13px;overflow:hidden;}
+.hero-row{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;}
+.hero-title{font-size:14px;font-weight:600;letter-spacing:.2px;color:var(--sub);}
+.hero-big{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-top:3px;}
+.hero-status{font-size:12px;color:var(--sub);margin-top:7px;display:flex;align-items:center;}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;
+  vertical-align:middle;background:#6b7684;flex:0 0 auto;}
+.dot.on{background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite;}
+.dot.err{background:var(--danger);box-shadow:0 0 10px var(--danger);}
+.dot.warn{background:var(--warn);box-shadow:0 0 10px var(--warn);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+.switch{position:relative;display:inline-block;width:52px;height:31px;flex:0 0 auto;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;border-radius:31px;transition:.28s cubic-bezier(.4,0,.2,1);
+  background:rgba(120,130,145,.45);border:1px solid var(--line);}
+.slider:before{content:"";position:absolute;height:25px;width:25px;left:2px;top:2px;
+  background:#fff;border-radius:50%;transition:.28s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 2px 6px rgba(0,0,0,.28);}
+.switch input:checked + .slider{background:var(--accent);border-color:transparent;}
+.switch input:checked + .slider:before{transform:translateX(21px);}
+.stats{display:flex;gap:10px;margin-bottom:13px;}
+.stat{flex:1;padding:14px 8px;text-align:center;border-radius:var(--radius-s);
+  background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);}
+.stat .num{font-size:21px;font-weight:800;line-height:1.2;letter-spacing:-.4px;}
+.stat .lbl{font-size:10.5px;color:var(--sub);margin-top:4px;}
+.banner{border-radius:var(--radius-s);padding:12px 14px;font-size:12.5px;margin-bottom:11px;
+  display:flex;gap:10px;align-items:flex-start;line-height:1.6;border:1px solid var(--line);
+  background:var(--glass2);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.banner .ico{font-size:15px;line-height:1.35;flex:0 0 auto;}
+.banner.bad{background:rgba(255,92,108,.14);border-color:rgba(255,92,108,.42);color:var(--danger);}
+.banner.warn{background:rgba(255,196,77,.14);border-color:rgba(255,196,77,.42);color:var(--warn);}
+.banner.info{background:rgba(90,200,250,.12);border-color:rgba(90,200,250,.38);color:var(--info);}
+.banner.ok{background:rgba(77,212,172,.13);border-color:rgba(77,212,172,.38);color:var(--accent);}
+body[data-theme="light"] .banner.bad{background:rgba(229,50,63,.09);}
+body[data-theme="light"] .banner.warn{background:rgba(197,121,0,.09);}
+body[data-theme="light"] .banner.info{background:rgba(11,127,212,.08);}
+body[data-theme="light"] .banner.ok{background:rgba(10,158,120,.09);}
+.page{display:none;}
+.page.active{display:block;animation:fade .26s cubic-bezier(.4,0,.2,1);}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.sec-title{font-size:11.5px;color:var(--sub);margin:20px 6px 9px 6px;font-weight:700;
+  letter-spacing:.6px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.sec-title .link{color:var(--info);font-weight:600;cursor:pointer;font-size:12px;letter-spacing:0;}
+.group{border-radius:var(--radius-s);overflow:hidden;background:var(--glass);
+  border:1px solid var(--line);margin-bottom:12px;
+  backdrop-filter:blur(18px) saturate(175%);-webkit-backdrop-filter:blur(18px) saturate(175%);}
+.grow{display:flex;align-items:center;gap:12px;padding:13px 15px;position:relative;
+  cursor:pointer;transition:background .18s;}
+.grow:active{background:var(--glass-hi);}
+.grow + .grow::after{content:"";position:absolute;left:15px;right:0;top:0;height:1px;background:var(--line);}
+.gico{width:30px;height:30px;border-radius:9px;flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;font-size:15px;background:var(--glass-hi);}
+.gtext{flex:1;min-width:0;}
+.gt{font-size:14px;font-weight:600;letter-spacing:.1px;}
+.gs{font-size:11.5px;color:var(--sub);margin-top:3px;line-height:1.45;word-break:break-all;}
+.chev{color:var(--sub);font-size:15px;flex:0 0 auto;opacity:.7;font-weight:300;}
+.item{border-radius:var(--radius-s);padding:14px;margin-bottom:11px;
+  background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(18px) saturate(175%);-webkit-backdrop-filter:blur(18px) saturate(175%);
+  box-shadow:0 6px 20px rgba(0,0,0,.16);}
+.item-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.item-name{font-size:14px;font-weight:700;word-break:break-all;line-height:1.35;}
+.item-time{font-size:10.5px;color:var(--sub);flex:0 0 auto;}
+.item-path{font-size:11px;color:var(--sub);margin-top:6px;word-break:break-all;line-height:1.5;
+  background:rgba(127,127,127,.10);padding:7px 9px;border-radius:9px;-webkit-user-select:text;user-select:text;}
+.item-reason{font-size:11.5px;margin-top:8px;padding:8px 10px;border-radius:10px;line-height:1.55;
+  background:rgba(255,92,108,.13);color:var(--danger);border:1px solid rgba(255,92,108,.30);}
+.item-meta{font-size:11px;color:var(--sub);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;}
+.item-meta b{color:var(--fg);font-weight:600;}
+.actions{display:flex;gap:8px;margin-top:12px;}
+.btn{flex:1;border-radius:12px;padding:10px 8px;font-size:12.5px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:transform .14s,background .2s;background:var(--glass-hi);
+  color:var(--fg);border:1px solid var(--line);display:flex;align-items:center;
+  justify-content:center;gap:5px;}
+.btn:active{transform:scale(.96);}
+.btn.danger{background:rgba(255,92,108,.16);color:var(--danger);border-color:rgba(255,92,108,.40);}
+.btn.ok{background:rgba(77,212,172,.16);color:var(--accent);border-color:rgba(77,212,172,.40);}
+.btn.primary{background:var(--accent);color:#04140f;border-color:transparent;
+  box-shadow:0 6px 18px rgba(77,212,172,.34);}
+.btn.ghost{background:transparent;}
+.log{display:flex;gap:10px;padding:11px 13px;border-radius:13px;margin-bottom:8px;
+  background:var(--glass2);border:1px solid var(--line);font-size:12px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+.log .act{flex:0 0 auto;font-weight:800;font-size:10.5px;padding:3px 8px;border-radius:7px;
+  height:fit-content;background:var(--glass-hi);letter-spacing:.3px;}
+.log .act.add{color:var(--warn);}
+.log .act.del{color:var(--danger);}
+.log .body{flex:1;min-width:0;}
+.log .nm{font-weight:600;word-break:break-all;line-height:1.4;}
+.log .sub{color:var(--sub);font-size:10.5px;margin-top:4px;word-break:break-all;line-height:1.45;}
+.tag{display:inline-flex;align-items:center;font-size:11px;padding:5px 10px;border-radius:20px;
+  background:var(--glass-hi);margin:5px 7px 0 0;color:var(--fg);word-break:break-all;
+  border:1px solid var(--line);max-width:100%;}
+.tag .x{color:var(--danger);margin-left:7px;cursor:pointer;font-weight:800;flex:0 0 auto;}
+.inputrow{display:flex;gap:8px;margin-bottom:11px;}
+.inputrow input{flex:1;background:var(--glass);border:1px solid var(--line);border-radius:13px;
+  padding:12px 14px;color:var(--fg);font-size:13px;font-family:inherit;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);-webkit-user-select:text;user-select:text;}
+.inputrow input::placeholder{color:var(--sub);}
+.inputrow input:focus{outline:none;border-color:var(--accent);}
+.empty{text-align:center;color:var(--sub);font-size:13px;padding:44px 20px;line-height:1.85;}
+.empty .big{font-size:34px;display:block;margin-bottom:10px;opacity:.85;}
+.tabbar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  display:flex;padding:8px 6px;z-index:50;border-radius:26px;background:var(--glass);
+  border:1px solid var(--glass-hi);backdrop-filter:blur(28px) saturate(190%);
+  -webkit-backdrop-filter:blur(28px) saturate(190%);
+  box-shadow:0 12px 40px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.24);}
+body[data-theme="light"] .tabbar{box-shadow:0 12px 34px rgba(20,35,55,.18),inset 0 1px 0 rgba(255,255,255,.9);}
+.tab{flex:1;text-align:center;padding:5px 0;color:var(--sub);font-size:10px;cursor:pointer;
+  position:relative;transition:color .2s;font-weight:700;letter-spacing:.2px;}
+.tab .ti{font-size:20px;display:block;margin-bottom:2px;transition:transform .22s cubic-bezier(.4,0,.2,1);}
+.tab.on{color:var(--accent);}
+.tab.on .ti{transform:translateY(-2px) scale(1.12);}
+.tab .badge{position:absolute;top:0;right:50%;transform:translateX(15px);background:var(--danger);
+  color:#fff;font-size:9.5px;font-weight:800;min-width:16px;height:16px;line-height:16px;
+  border-radius:9px;padding:0 4px;display:none;box-shadow:0 2px 8px rgba(255,92,108,.55);}
+.tab .badge.show{display:block;}
+#toast{position:fixed;left:50%;bottom:calc(108px + env(safe-area-inset-bottom,0px));
+  transform:translate(-50%,16px);background:rgba(20,24,30,.88);color:#fff;font-size:13px;
+  padding:11px 20px;border-radius:24px;opacity:0;pointer-events:none;
+  transition:.26s cubic-bezier(.4,0,.2,1);z-index:99;max-width:84%;text-align:center;
+  line-height:1.5;font-weight:500;border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
+#toast.show{opacity:1;transform:translate(-50%,0);}
+body[data-theme="light"] #toast{background:rgba(250,252,255,.94);color:#101820;border-color:rgba(0,0,0,.08);}
+.avatar{width:62px;height:62px;border-radius:22px;flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;font-size:28px;font-weight:800;color:#04140f;
+  background:linear-gradient(140deg,var(--accent),#5ac8fa);
+  box-shadow:0 8px 22px rgba(77,212,172,.34),inset 0 1px 0 rgba(255,255,255,.4);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:13px 15px;}
+.chip{padding:8px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;
+  background:var(--glass-hi);border:1px solid var(--line);color:var(--fg);
+  transition:all .2s cubic-bezier(.4,0,.2,1);}
+.chip.on{background:var(--accent);color:#04140f;border-color:transparent;
+  box-shadow:0 5px 16px rgba(77,212,172,.38);transform:translateY(-1px);}
+.chip:active{transform:scale(.95);}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;
+  align-items:center;justify-content:center;padding:26px;backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .24s;}
+.mask.show{opacity:1;pointer-events:auto;}
+.modal{width:100%;max-width:320px;border-radius:24px;padding:22px 20px 16px;
+  background:var(--glass);border:1px solid var(--glass-hi);backdrop-filter:blur(30px) saturate(190%);
+  -webkit-backdrop-filter:blur(30px) saturate(190%);box-shadow:0 20px 60px rgba(0,0,0,.45);
+  transform:scale(.92);transition:transform .26s cubic-bezier(.4,0,.2,1);}
+body[data-theme="light"] .modal{background:rgba(252,253,255,.94);}
+.mask.show .modal{transform:scale(1);}
+.modal h3{margin:0 0 10px 0;font-size:16px;font-weight:800;text-align:center;}
+.modal p{margin:0 0 18px 0;font-size:12.5px;color:var(--sub);line-height:1.7;text-align:center;word-break:break-all;}
+.pdot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:var(--danger);
+  box-shadow:0 0 8px rgba(255,92,108,.6);}
+.pdot.ok{background:var(--accent);box-shadow:0 0 8px rgba(77,212,172,.6);}
+.pdot.warn{background:var(--warn);box-shadow:0 0 8px rgba(255,196,77,.6);}
+</style>
 </style>
 </head>
-<body>
-<div class="bg-wrap"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-<div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">🛡️</div>
-      <div><h1>Anti-Wipe Guard</h1><p>系统目录防清除守护</p></div>
-    </div>
-    <button class="icon-btn" id="btnAccount" title="账号">👤</button>
-  </div>
-  <div class="glass status-card">
-    <div class="status-head">
-      <div class="ring" id="ring"><div class="core" id="ringIcon">✅</div></div>
-      <div class="status-meta">
-        <h2 id="guardTitle">守护运行中</h2>
-        <p id="guardDesc">正在监视关键系统目录</p>
-        <span class="pill ok" id="guardPill">● 保护已启用</span>
-      </div>
-    </div>
-    <div class="stats">
-      <div class="stat"><b id="stChecked">0</b><span>已扫描</span></div>
-      <div class="stat"><b id="stWarn" style="color:var(--danger)">0</b><span>危险事件</span></div>
-      <div class="stat"><b id="stBlock">0</b><span>已拦截</span></div>
-    </div>
-    <div class="btn-row" style="margin:0">
-      <button class="btn" id="btnScan">🔍 立即扫描</button>
-      <button class="btn ghost" id="btnSim" style="flex:0 0 42%">⚡ 模拟危险</button>
-    </div>
-  </div>
-  <div class="sec-title">防护规则</div>
-  <div class="glass list">
-    <div class="row">
-      <div class="ico" style="background:rgba(255,59,48,.15)">📂</div>
-      <div class="txt"><b>系统目录删除监控</b><small>/system、/data、/sdcard 等</small></div>
-      <label class="switch"><input type="checkbox" id="swDir"><span class="slider"></span></label>
-    </div>
-    <div class="row">
-      <div class="ico" style="background:rgba(255,159,10,.16)">🗑️</div>
-      <div class="txt"><b>rm -rf / 指令拦截</b><small>高危格式化命令</small></div>
-      <label class="switch"><input type="checkbox" id="swCmd"><span class="slider"></span></label>
-    </div>
-    <div class="row">
-      <div class="ico" style="background:rgba(10,132,255,.15)">📝</div>
-      <div class="txt"><b>文件批量写入监控</b><small>短时间内大量删改</small></div>
-      <label class="switch"><input type="checkbox" id="swBulk"><span class="slider"></span></label>
-    </div>
-    <div class="row">
-      <div class="ico" style="background:rgba(52,199,89,.16)">🔔</div>
-      <div class="txt"><b>去重通知（关键）</b><small>同一条目仅提醒一次，不刷屏</small></div>
-      <label class="switch"><input type="checkbox" id="swDedup"><span class="slider"></span></label>
-    </div>
-    <div class="row">
-      <div class="ico" style="background:rgba(179,157,255,.18)">⏱️</div>
-      <div class="txt"><b>后台扫描间隔</b><small id="intervalLbl">每 30 秒巡检一次</small></div>
-      <select id="selInterval" style="background:transparent;border:none;color:var(--text-sub);font-size:12.5px;outline:none;text-align:right">
-        <option value="10">10 秒</option><option value="30" selected>30 秒</option>
-        <option value="60">60 秒</option><option value="0">关闭</option>
-      </select>
-    </div>
-  </div>
-  <div class="sec-title">事件日志 <span style="float:right;font-weight:500;text-transform:none;cursor:pointer" id="btnClearLog">清空</span></div>
-  <div class="glass logs" id="logList"><div class="log-empty">暂无事件记录 🎉</div></div>
-  <div class="foot">Anti-Wipe Guard · 演示版<br>浏览器沙箱无法读取真实文件系统，本页为逻辑演示与 UI 原型。</div>
+<body data-theme="dark">
+
+<div class="blobs">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
 </div>
 
-<!-- 设置面板 -->
-<div class="sheet-mask" id="setMask"></div>
-<div class="glass sheet" id="setSheet">
-  <div class="sheet-grab"></div>
-  <h3>外观设置</h3>
-  <p class="sub">挑选你喜欢的玻璃主题</p>
-  <div class="themes" id="themeGrid">
-    <div class="theme-item" data-theme="light">
-      <div class="theme-dot"><i style="background:#7aa2ff"></i><i style="background:#ff9ec7"></i></div>
-      <div class="theme-name">浅色</div>
-    </div>
-    <div class="theme-item" data-theme="dark">
-      <div class="theme-dot" style="background:#1a1f2b"><i style="background:#4da3ff"></i><i style="background:#7a2f5c"></i></div>
-      <div class="theme-name">深色</div>
-    </div>
-    <div class="theme-item" data-theme="mint">
-      <div class="theme-dot" style="background:#eafaf5"><i style="background:#5fd0b0"></i><i style="background:#7cc4ff"></i></div>
-      <div class="theme-name">薄荷</div>
-    </div>
-    <div class="theme-item" data-theme="dusk">
-      <div class="theme-dot" style="background:#241b44"><i style="background:#7b5cff"></i><i style="background:#ff6ec7"></i></div>
-      <div class="theme-name">暮光</div>
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">🛡️</div>
+    <div style="min-width:0">
+      <h1 id="t-appname">小光守护</h1>
+      <p id="t-slogan">你的手机，我替你盯着</p>
     </div>
   </div>
-  <div style="margin-top:6px">
-    <div class="row" style="padding:13px 2px">
-      <div class="ico">🔊</div>
-      <div class="txt"><b>提示音</b><small>检测到危险时播放提示音</small></div>
-      <label class="switch"><input type="checkbox" id="swSound"><span class="slider"></span></label>
-    </div>
-    <div class="row" style="padding:13px 2px">
-      <div class="ico">📳</div>
-      <div class="txt"><b>振动反馈</b><small>设备支持时触发振动</small></div>
-      <label class="switch"><input type="checkbox" id="swVibe"><span class="slider"></span></label>
-    </div>
-  </div>
-  <button class="btn" style="margin-top:14px" id="btnCloseSet">完成</button>
+  <div class="icon-btn" onclick="cycleTheme()" id="themeBtn">🌙</div>
 </div>
 
-<!-- 账号面板 -->
-<div class="sheet-mask" id="acctMask"></div>
-<div class="glass sheet" id="acctSheet">
-  <div class="sheet-grab"></div>
-  <div id="acctLoggedOut">
-    <div class="avatar">👤</div>
-    <h3 style="text-align:center">登录账号</h3>
-    <p class="sub" style="text-align:center">登录后可保存守护配置与主题</p>
-    <div class="field"><label>用户名</label><input id="inUser" placeholder="输入用户名" autocomplete="username"></div>
-    <div class="field"><label>密码</label><input id="inPass" type="password" placeholder="输入密码" autocomplete="current-password"></div>
-    <div class="btn-row" style="margin:0">
-      <button class="btn" id="btnLogin">登录</button>
-      <button class="btn ghost" id="btnReg">注册</button>
+<!-- ============ 首页 ============ -->
+<div class="page active" id="page-home">
+  <div class="glass hero">
+    <div class="hero-row">
+      <div style="min-width:0">
+        <div class="hero-title" id="t-guardstate">守护状态</div>
+        <div class="hero-big" id="bigStatus">--</div>
+        <div class="hero-status"><span class="dot" id="statDot"></span><span id="statText">正在读取…</span></div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="runSwitch" onchange="onToggleGuard(this.checked)">
+        <span class="slider"></span>
+      </label>
     </div>
-    <p class="sub" style="margin:14px 0 0;text-align:center;font-size:11px">
-      演示账号系统：数据仅存于本机 localStorage，密码经 SHA-256 摘要存储
-    </p>
   </div>
-  <div id="acctLoggedIn" style="display:none">
-    <div class="avatar" id="acctAvatar">U</div>
-    <h3 style="text-align:center;margin-bottom:2px" id="acctName">用户名</h3>
-    <p class="sub" style="text-align:center" id="acctSince">注册于 —</p>
-    <div class="list" style="padding:8px 0;margin-top:10px">
-      <div class="row" style="padding:13px 4px">
-        <div class="ico">🛡️</div>
-        <div class="txt"><b>守护总次数</b><small>累计触发保护</small></div>
-        <div class="val" id="acctGuard">0</div>
-      </div>
-      <div class="row" style="padding:13px 4px">
-        <div class="ico">🎨</div>
-        <div class="txt"><b>当前主题</b><small>可在设置中修改</small></div>
-        <div class="val" id="acctTheme">浅色</div>
-      </div>
+
+  <div id="homeBanner"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="nSus">0</div><div class="lbl" id="t-susCount">可疑文件</div></div>
+    <div class="stat"><div class="num" id="nFile">0</div><div class="lbl" id="t-fileCount">已监控</div></div>
+    <div class="stat"><div class="num" id="nScan">--</div><div class="lbl" id="t-lastScan">最近扫描</div></div>
+  </div>
+
+  <div class="sec-title"><span id="t-quick">快捷操作</span></div>
+  <div class="group">
+    <div class="grow" onclick="doScan()">
+      <div class="gico">🔍</div>
+      <div class="gtext"><div class="gt" id="t-scanNow">立即扫描</div><div class="gs" id="t-scanNowSub">马上检查一遍监控目录</div></div>
+      <div class="chev">›</div>
     </div>
-    <button class="btn danger" style="margin-top:12px" id="btnLogout">退出登录</button>
+    <div class="grow" onclick="go('sus')">
+      <div class="gico">⚠️</div>
+      <div class="gtext"><div class="gt" id="t-viewSus">查看可疑文件</div><div class="gs" id="t-viewSusSub">被标记的文件都在这里</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="grow" onclick="rebuild()">
+      <div class="gico">🧱</div>
+      <div class="gtext"><div class="gt" id="t-baseline">重建基线</div><div class="gs" id="t-baselineSub">把当前文件当作"正常"，只报新增</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="grow" onclick="go('perm')">
+      <div class="gico">🔑</div>
+      <div class="gtext"><div class="gt" id="t-permCenter">权限中心</div><div class="gs" id="t-permCenterSub">检查并补齐必要权限</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span id="t-recent">最近动态</span><span class="link" onclick="go('log')" id="t-allLog">全部 ›</span></div>
+  <div id="homeLogs"></div>
+</div>
+
+<!-- ============ 可疑 ============ -->
+<div class="page" id="page-sus">
+  <div class="sec-title"><span id="t-susList">可疑文件列表</span><span class="link" onclick="loadSus()" id="t-refresh">刷新</span></div>
+  <div id="susList"></div>
+</div>
+
+<!-- ============ 日志 ============ -->
+<div class="page" id="page-log">
+  <div class="sec-title"><span id="t-logList">事件日志</span><span class="link" onclick="clearLogs()" id="t-clearLog">清空</span></div>
+  <div id="logList"></div>
+</div>
+
+<!-- ============ 权限中心 ============ -->
+<div class="page" id="page-perm">
+  <div id="permBanner"></div>
+  <div class="sec-title"><span id="t-permList">权限清单</span></div>
+  <div class="group" id="permList"></div>
+  <div class="banner info">
+    <div class="ico">💡</div>
+    <div id="t-permTip">文件访问权限是"全部文件访问"，需要到系统设置里手动开启；通知权限用于推送发现异常的提醒。</div>
   </div>
 </div>
 
-<!-- 危险警告弹窗 -->
-<div class="modal-mask" id="warnMask">
+<!-- ============ 我的 ============ -->
+<div class="page" id="page-me">
+  <div class="glass" style="padding:18px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="avatar" id="avatarBox">光</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:17px;font-weight:800;" id="userName">小光用户</div>
+        <div style="font-size:11.5px;color:var(--sub);margin-top:5px;" id="userDesc">本地账号 · 不联网 · 不上传</div>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:14px;">
+      <div class="btn" onclick="openAccount()" id="t-editAccount">✏️ 编辑昵称</div>
+      <div class="btn ghost" onclick="toast(msg('localOnly'))" id="t-privacy">🔒 隐私说明</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span id="t-monitorDir">监控目录</span></div>
+  <div class="group">
+    <div style="padding:13px 15px 4px;" id="dirTags"></div>
+    <div class="inputrow" style="padding:0 15px 13px;">
+      <input id="dirInput" placeholder="/sdcard/Download" />
+      <div class="btn ok" style="flex:0 0 auto;padding:12px 16px;" onclick="addDir()" id="t-add">添加</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span id="t-whiteList">白名单</span></div>
+  <div class="group">
+    <div style="padding:13px 15px 4px;" id="whiteTags"></div>
+    <div class="gs" style="padding:0 15px 14px;color:var(--sub);font-size:11.5px;" id="t-whiteHint">白名单里的文件不会被标记为可疑。在可疑列表中点击"放行"即可加入。</div>
+  </div>
+
+  <div class="sec-title"><span id="t-settings">设置</span></div>
+  <div class="group">
+    <div class="grow" onclick="toggleAutoStart()">
+      <div class="gico">🚀</div>
+      <div class="gtext"><div class="gt" id="t-autoStart">开机自启</div><div class="gs" id="t-autoStartSub">重启后自动恢复守护</div></div>
+      <div class="chev" id="autoStartVal">--</div>
+    </div>
+    <div class="grow" onclick="setLangNext()">
+      <div class="gico">🌐</div>
+      <div class="gtext"><div class="gt" id="t-lang">语言</div><div class="gs" id="t-langSub">选择界面语言</div></div>
+      <div class="chev" id="langVal">中文</div>
+    </div>
+    <div class="grow" onclick="cycleTheme()">
+      <div class="gico">🎨</div>
+      <div class="gtext"><div class="gt" id="t-theme">主题</div><div class="gs" id="t-themeSub">深色 / 浅色 / 暮色 / 海洋</div></div>
+      <div class="chev" id="themeVal">深色</div>
+    </div>
+    <div class="grow" onclick="openPermSettings()">
+      <div class="gico">⚙️</div>
+      <div class="gtext"><div class="gt" id="t-sysSetting">系统应用设置</div><div class="gs" id="t-sysSettingSub">前往系统界面调整权限</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span id="t-about">关于</span></div>
+  <div class="group">
+    <div class="grow">
+      <div class="gico">ℹ️</div>
+      <div class="gtext"><div class="gt" id="t-version">版本</div><div class="gs">小光守护 v2.0 (Glassmorphism)</div></div>
+      <div class="chev" id="verVal">--</div>
+    </div>
+    <div class="grow" onclick="toast(msg('honest'))">
+      <div class="gico">🧭</div>
+      <div class="gtext"><div class="gt" id="t-honest">能力说明</div><div class="gs" id="t-honestSub">它能做什么、不能做什么</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span id="t-langSec">语言 / Language</span></div>
+  <div class="group"><div class="chips" id="langChips"></div></div>
+</div>
+
+<!-- ============ 底部导航 ============ -->
+<div class="tabbar">
+  <div class="tab on" data-tab="home" onclick="go('home')"><span class="ti">🏠</span><span id="t-tabHome">首页</span></div>
+  <div class="tab" data-tab="sus" onclick="go('sus')"><span class="ti">⚠️</span><span id="t-tabSus">可疑</span><span class="badge" id="susBadge">0</span></div>
+  <div class="tab" data-tab="log" onclick="go('log')"><span class="ti">📜</span><span id="t-tabLog">日志</span></div>
+  <div class="tab" data-tab="me" onclick="go('me')"><span class="ti">👤</span><span id="t-tabMe">我的</span></div>
+</div>
+
+<div id="toast"></div>
+
+<div class="mask" id="mask">
   <div class="modal">
-    <div class="big">⚠️</div>
-    <h3 id="warnTitle">检测到高危操作</h3>
-    <p id="warnText">系统正在尝试清除关键目录</p>
-    <div class="path" id="warnPath">/data/…</div>
-    <div class="note" id="warnNote">已通知一次，为避免骚扰，同一目标不会重复提醒。</div>
-    <button class="btn" style="margin-top:16px" id="btnWarnOk">我知道了</button>
+    <h3 id="mTitle">提示</h3>
+    <p id="mBody">内容</p>
+    <div class="actions">
+      <div class="btn ghost" id="mCancel" onclick="closeModal()">取消</div>
+      <div class="btn primary" id="mOk" onclick="modalOk()">确定</div>
+    </div>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
-
 <script>
-/* =========================================================
- * Anti-Wipe Guard — 演示逻辑
- * 浏览器出于安全无法读取真实文件系统，FS.scan() 为模拟实现。
- * 真实接入时替换 FS.scan() 即可（安卓端可用 Shizuku / Root / 无障碍）。
- * ========================================================= */
-(function(){
-  'use strict';
-  var $ = function(id){ return document.getElementById(id); };
+/* ============================================================
+   小光守护 v2 · 多语言文案
+   ============================================================ */
+var LANGS = ["zh", "zhs", "en", "ja"];
+var LANG_NAME = { zh: "中文·幽默", zhs: "中文·正经", en: "English", ja: "日本語" };
 
-  /* ---------- 本地存储 ---------- */
-  var LS = {
-    get: function(k, d){
-      try{ var v = localStorage.getItem('awg.'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; }
-    },
-    set: function(k, v){ try{ localStorage.setItem('awg.'+k, JSON.stringify(v)); }catch(e){} },
-    del: function(k){ try{ localStorage.removeItem('awg.'+k); }catch(e){} }
-  };
+var I18N = {
+zh: {
+  appname: "小光守护", slogan: "你的手机，我替你盯着",
+  guardstate: "守护状态", susCount: "可疑文件", fileCount: "已监控", lastScan: "最近扫描",
+  quick: "快捷操作", scanNow: "立即扫描", scanNowSub: "马上检查一遍监控目录",
+  viewSus: "查看可疑文件", viewSusSub: "被标记的文件都在这里",
+  baseline: "重建基线", baselineSub: "把当前文件当作正常，只报新增",
+  permCenter: "权限中心", permCenterSub: "检查并补齐必要权限",
+  recent: "最近动态", allLog: "全部 ›",
+  susList: "可疑文件列表", refresh: "刷新", logList: "事件日志", clearLog: "清空",
+  permList: "权限清单",
+  permTip: "文件访问权限是「全部文件访问」，需要到系统设置里手动开启；通知权限用于推送发现异常的提醒。",
+  editAccount: "✏️ 编辑昵称", privacy: "🔒 隐私说明", localOnly: "数据全部保存在本机，不上传、不联网。放心。",
+  monitorDir: "监控目录", add: "添加", whiteList: "白名单",
+  whiteHint: "白名单里的文件不会被标记为可疑。在可疑列表中点击「放行」即可加入。",
+  settings: "设置", autoStart: "开机自启", autoStartSub: "重启后自动恢复守护",
+  lang: "语言", langSub: "选择界面语言", theme: "主题", themeSub: "深色 / 浅色 / 暮色 / 海洋",
+  sysSetting: "系统应用设置", sysSettingSub: "前往系统界面调整权限",
+  about: "关于", version: "版本", honest: "能力说明", honestSub: "它能做什么、不能做什么",
+  honestText: "它能：定期扫描监控目录、发现新增文件、标记可疑、记录来源、提醒你。它不能：阻止写入或删除、自动还原文件、代替你做决定。发现异常后，删除动作需要你亲自确认。",
+  langSec: "语言 / Language",
+  tabHome: "首页", tabSus: "可疑", tabLog: "日志", tabMe: "我的",
+  running: "守护中", stopped: "已停止", noRoot: "无 Root",
+  statRunning: "正在实时盯着下载目录", statStopped: "守护已关闭", statNoRoot: "未获得 Root 权限",
+  on: "已开启", off: "已关闭", unknown: "未知",
+  scanDone: "扫描完成", scanning: "扫描中…", rebuildDone: "基线已重建", rebuildAsk: "重新把当前文件当作正常基准？之后只报告新增文件。",
+  cleared: "日志已清空", clearAsk: "确定清空全部日志？", dirAdded: "目录已添加", dirEmpty: "请输入以 / 开头的路径",
+  dirExists: "该目录已在列表中", delAsk: "确定删除这个文件？删了就真没了。",
+  runAsk: "确定删除这个可疑文件？",
+  deleted: "已删除", whitelisted: "已加入白名单", removed: "已移除",
+  noSus: "干净得很", noSusSub: "暂时没发现可疑文件", noLog: "还没有日志", noLogSub: "守护运行后这里会有记录",
+  openFile: "打开", openFail: "打不开这个文件", del: "删除", allow: "放行", delWhite: "移出白名单",
+  permGranted: "已授权", permDenied: "未授权", permGo: "去开启",
+  permNeed: "还有权限没开，功能可能不完整", permAllOk: "权限都齐了，可以安心守护",
+  pStorage: "全部文件访问", pStorageSub: "用于扫描下载目录里的文件",
+  pNotify: "通知权限", pNotifySub: "发现异常时提醒你",
+  pRoot: "Root 权限", pRootSub: "用于深度扫描与删除文件",
+  nickname: "昵称", nickAsk: "起个名字", saved: "已保存",
+  scanManual: "手动扫描", scanAuto: "自动扫描", newFile: "新增文件", deletedFile: "文件消失", flagged: "标记可疑",
+  msgNewFile: "发现一个新来的文件", msgDeleted: "有个文件不见了",
+  scanResult: "扫描完成，新增 {n} 个文件"
+},
+zhs: {
+  appname: "小光守护", slogan: "持续监控，异常可查",
+  guardstate: "守护状态", susCount: "可疑文件", fileCount: "已监控", lastScan: "最近扫描",
+  quick: "快捷操作", scanNow: "立即扫描", scanNowSub: "立即检查监控目录",
+  viewSus: "查看可疑文件", viewSusSub: "查看被标记的文件",
+  baseline: "重建基线", baselineSub: "将当前文件状态设为正常基准",
+  permCenter: "权限中心", permCenterSub: "检查必要权限",
+  recent: "最近动态", allLog: "全部 ›",
+  susList: "可疑文件列表", refresh: "刷新", logList: "事件日志", clearLog: "清空",
+  permList: "权限清单",
+  permTip: "文件访问权限需前往系统设置手动开启；通知权限用于异常提醒。",
+  editAccount: "✏️ 编辑昵称", privacy: "🔒 隐私说明", localOnly: "全部数据保存在本机，不联网、不上传。",
+  monitorDir: "监控目录", add: "添加", whiteList: "白名单",
+  whiteHint: "白名单中的文件不会被标记。可在可疑列表中点击「放行」加入。",
+  settings: "设置", autoStart: "开机自启", autoStartSub: "开机后自动恢复守护",
+  lang: "语言", langSub: "选择界面语言", theme: "主题", themeSub: "深色 / 浅色 / 暮色 / 海洋",
+  sysSetting: "系统应用设置", sysSettingSub: "前往系统界面调整权限",
+  about: "关于", version: "版本", honest: "能力说明", honestSub: "功能范围说明",
+  honestText: "支持：定期扫描监控目录、发现新增文件、标记可疑、记录来源并提醒。不支持：阻止写入或删除、自动还原文件。发现异常后需手动确认删除。",
+  langSec: "语言 / Language",
+  tabHome: "首页", tabSus: "可疑", tabLog: "日志", tabMe: "我的",
+  running: "守护中", stopped: "已停止", noRoot: "无 Root",
+  statRunning: "正在监控下载目录", statStopped: "守护已关闭", statNoRoot: "未获得 Root 权限",
+  on: "已开启", off: "已关闭", unknown: "未知",
+  scanDone: "扫描完成", scanning: "扫描中…", rebuildDone: "基线已重建", rebuildAsk: "将当前文件设为正常基准？之后仅报告新增文件。",
+  cleared: "日志已清空", clearAsk: "确定清空全部日志？", dirAdded: "目录已添加", dirEmpty: "请输入以 / 开头的路径",
+  dirExists: "该目录已存在", delAsk: "确定删除该文件？此操作不可恢复。",
+  runAsk: "确定删除该可疑文件？",
+  deleted: "已删除", whitelisted: "已加入白名单", removed: "已移除",
+  noSus: "未发现异常", noSusSub: "暂无可疑文件", noLog: "暂无日志", noLogSub: "守护运行后将显示记录",
+  openFile: "打开", openFail: "无法打开该文件", del: "删除", allow: "放行", delWhite: "移出白名单",
+  permGranted: "已授权", permDenied: "未授权", permGo: "去开启",
+  permNeed: "部分权限未开启，功能可能受限", permAllOk: "权限已全部开启",
+  pStorage: "全部文件访问", pStorageSub: "用于扫描目录中的文件",
+  pNotify: "通知权限", pNotifySub: "发现异常时提醒",
+  pRoot: "Root 权限", pRootSub: "用于扫描与删除文件",
+  nickname: "昵称", nickAsk: "输入昵称", saved: "已保存",
+  scanManual: "手动扫描", scanAuto: "自动扫描", newFile: "新增文件", deletedFile: "文件消失", flagged: "标记可疑",
+  msgNewFile: "检测到新增文件", msgDeleted: "检测到文件被删除",
+  scanResult: "扫描完成，新增 {n} 个文件"
+},
+en: {
+  appname: "XiaoGuang Guard", slogan: "I keep an eye on your phone",
+  guardstate: "Guard Status", susCount: "Suspicious", fileCount: "Monitored", lastScan: "Last Scan",
+  quick: "Quick Actions", scanNow: "Scan Now", scanNowSub: "Check monitored folders right away",
+  viewSus: "View Suspicious", viewSusSub: "Flagged files live here",
+  baseline: "Rebuild Baseline", baselineSub: "Treat current files as normal, report only new ones",
+  permCenter: "Permissions", permCenterSub: "Check required permissions",
+  recent: "Recent Activity", allLog: "All ›",
+  susList: "Suspicious Files", refresh: "Refresh", logList: "Event Log", clearLog: "Clear",
+  permList: "Permission List",
+  permTip: "All-files access must be enabled in system settings; notification permission is used for alerts.",
+  editAccount: "✏️ Edit Nickname", privacy: "🔒 Privacy", localOnly: "Everything stays on your device. No network, no uploads.",
+  monitorDir: "Monitored Folders", add: "Add", whiteList: "Whitelist",
+  whiteHint: "Whitelisted files are never flagged. Tap Allow in the suspicious list to add one.",
+  settings: "Settings", autoStart: "Auto Start", autoStartSub: "Resume guarding after reboot",
+  lang: "Language", langSub: "Choose interface language", theme: "Theme", themeSub: "Dark / Light / Dusk / Ocean",
+  sysSetting: "App System Settings", sysSettingSub: "Open system settings for permissions",
+  about: "About", version: "Version", honest: "What It Can Do", honestSub: "Capabilities and limits",
+  honestText: "Can: scan folders periodically, detect new files, flag suspicious items, record origins, notify you. Cannot: block writes or deletions, restore files automatically. Deleting is always your call.",
+  langSec: "Language / 言語",
+  tabHome: "Home", tabSus: "Alerts", tabLog: "Log", tabMe: "Me",
+  running: "Guarding", stopped: "Stopped", noRoot: "No Root",
+  statRunning: "Watching your download folder", statStopped: "Guard is off", statNoRoot: "Root permission not granted",
+  on: "On", off: "Off", unknown: "Unknown",
+  scanDone: "Scan complete", scanning: "Scanning…", rebuildDone: "Baseline rebuilt", rebuildAsk: "Treat current files as the normal baseline? Only new files will be reported.",
+  cleared: "Log cleared", clearAsk: "Clear all logs?", dirAdded: "Folder added", dirEmpty: "Path must start with /",
+  dirExists: "Folder already in list", delAsk: "Delete this file? It cannot be recovered.",
+  runAsk: "Delete this suspicious file?",
+  deleted: "Deleted", whitelisted: "Added to whitelist", removed: "Removed",
+  noSus: "All clean", noSusSub: "No suspicious files found", noLog: "No logs yet", noLogSub: "Records appear once guarding runs",
+  openFile: "Open", openFail: "Cannot open this file", del: "Delete", allow: "Allow", delWhite: "Remove",
+  permGranted: "Granted", permDenied: "Denied", permGo: "Grant",
+  permNeed: "Some permissions are missing; features may be limited", permAllOk: "All permissions are granted",
+  pStorage: "All Files Access", pStorageSub: "Used to scan files in folders",
+  pNotify: "Notification", pNotifySub: "Alerts you when something looks wrong",
+  pRoot: "Root Access", pRootSub: "Used for deep scanning and deletion",
+  nickname: "Nickname", nickAsk: "Enter a nickname", saved: "Saved",
+  scanManual: "Manual Scan", scanAuto: "Auto Scan", newFile: "New File", deletedFile: "File Gone", flagged: "Flagged",
+  msgNewFile: "A new file just showed up", msgDeleted: "A file disappeared",
+  scanResult: "Scan finished, {n} new file(s)"
+},
+ja: {
+  appname: "シャオグアン・ガード", slogan: "あなたのスマホ、私が見張る",
+  guardstate: "見守り状態", susCount: "要注意", fileCount: "監視中", lastScan: "最終スキャン",
+  quick: "クイック操作", scanNow: "今すぐスキャン", scanNowSub: "監視フォルダをすぐ確認",
+  viewSus: "要注意ファイル", viewSusSub: "マークされたファイル一覧",
+  baseline: "基準を再構築", baselineSub: "現在のファイルを正常として扱い、新規のみ通知",
+  permCenter: "権限センター", permCenterSub: "必要な権限を確認",
+  recent: "最近の動き", allLog: "すべて ›",
+  susList: "要注意ファイル一覧", refresh: "更新", logList: "イベントログ", clearLog: "消去",
+  permList: "権限一覧",
+  permTip: "「すべてのファイルへのアクセス」はシステム設定で手動で有効にしてください。通知権限は警告に使われます。",
+  editAccount: "✏️ ニックネーム編集", privacy: "🔒 プライバシー", localOnly: "データはすべて端末内に保存され、送信も通信も行いません。",
+  monitorDir: "監視フォルダ", add: "追加", whiteList: "ホワイトリスト",
+  whiteHint: "ホワイトリストのファイルはマークされません。「許可」で追加できます。",
+  settings: "設定", autoStart: "自動起動", autoStartSub: "再起動後に見守りを再開",
+  lang: "言語", langSub: "表示言語を選択", theme: "テーマ", themeSub: "ダーク / ライト / 夕暮れ / オーシャン",
+  sysSetting: "システム設定", sysSettingSub: "システム画面で権限を調整",
+  about: "このアプリ", version: "バージョン", honest: "できること", honestSub: "機能と限界",
+  honestText: "できること：定期スキャン、新規ファイルの検出、要注意マーク、出所の記録、通知。できないこと：書き込みや削除の阻止、自動復元。削除は必ずあなたの操作です。",
+  langSec: "言語 / Language",
+  tabHome: "ホーム", tabSus: "要注意", tabLog: "ログ", tabMe: "マイ",
+  running: "見守り中", stopped: "停止中", noRoot: "Root なし",
+  statRunning: "ダウンロードを監視しています", statStopped: "見守りは停止中", statNoRoot: "Root 権限がありません",
+  on: "オン", off: "オフ", unknown: "不明",
+  scanDone: "スキャン完了", scanning: "スキャン中…", rebuildDone: "基準を再構築しました", rebuildAsk: "現在のファイルを正常な基準にしますか？以降は新規のみ報告します。",
+  cleared: "ログを消去しました", clearAsk: "ログをすべて消去しますか？", dirAdded: "フォルダを追加しました", dirEmpty: "/ で始まるパスを入力してください",
+  dirExists: "すでに一覧にあります", delAsk: "このファイルを削除しますか？元に戻せません。",
+  runAsk: "この要注意ファイルを削除しますか？",
+  deleted: "削除しました", whitelisted: "ホワイトリストに追加", removed: "削除しました",
+  noSus: "きれいです", noSusSub: "要注意ファイルはありません", noLog: "ログはまだありません", noLogSub: "見守り開始後に表示されます",
+  openFile: "開く", openFail: "このファイルを開けません", del: "削除", allow: "許可", delWhite: "解除",
+  permGranted: "許可済み", permDenied: "未許可", permGo: "許可する",
+  permNeed: "一部の権限が未許可です", permAllOk: "権限はすべて許可済みです",
+  pStorage: "すべてのファイル", pStorageSub: "フォルダ内のファイルをスキャン",
+  pNotify: "通知権限", pNotifySub: "異常を発見したときに通知",
+  pRoot: "Root 権限", pRootSub: "スキャンと削除に使用",
+  nickname: "ニックネーム", nickAsk: "名前を入力", saved: "保存しました",
+  scanManual: "手動スキャン", scanAuto: "自動スキャン", newFile: "新規ファイル", deletedFile: "消失", flagged: "要注意",
+  msgNewFile: "新しいファイルを検出", msgDeleted: "ファイルが消えました",
+  scanResult: "スキャン完了、新規 {n} 件"
+}
+};
+</script>
+<script>
+/* ============================================================
+   小光守护 v2 · 核心逻辑
+   ============================================================ */
+var THEMES = ["dark", "light", "dusk", "ocean"];
+var THEME_NAME = { dark: "深色", light: "浅色", dusk: "暮色", ocean: "海洋" };
+var THEME_ICON = { dark: "🌙", light: "☀️", dusk: "🌆", ocean: "🌊" };
 
-  /* ---------- 状态 ---------- */
-  var state = {
-    theme:     LS.get('theme','light'),
-    sound:     LS.get('sound',true),
-    vibe:      LS.get('vibe',true),
-    dedup:     LS.get('dedup',true),
-    rules:     LS.get('rules',{dir:true,cmd:true,bulk:true}),
-    interval:  LS.get('interval',30),
-    seen:      LS.get('seen',[]),          // 已提醒指纹（去重核心）
-    logs:      LS.get('logs',[]),
-    stats:     LS.get('stats',{checked:0,warn:0,block:0}),
-    user:      LS.get('user',null),
-    timer:     null
-  };
+var bridge = (window.GuardX && typeof window.GuardX === "object") ? window.GuardX : null;
+var L = "zh";
+var T = I18N.zh;
+var status = {};
+var curTab = "home";
+var lastSusCount = -1;
+var pendingOk = null;
 
-  function persist(){
-    LS.set('theme',state.theme);
-    LS.set('sound',state.sound);
-    LS.set('vibe',state.vibe);
-    LS.set('dedup',state.dedup);
-    LS.set('rules',state.rules);
-    LS.set('interval',state.interval);
-    LS.set('seen',state.seen.slice(-500));   // 上限 500，防膨胀
-    LS.set('logs',state.logs.slice(0,80));
-    LS.set('stats',state.stats);
-  }
+function $(id) { return document.getElementById(id); }
 
-  /* ---------- 主题 ---------- */
-  var THEME_NAME = {light:'浅色',dark:'深色',mint:'薄荷',dusk:'暮光'};
-  function applyTheme(t){
-    state.theme = t;
-    if(t==='light') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme',t);
-    var items = document.querySelectorAll('.theme-item');
-    for(var i=0;i<items.length;i++) items[i].classList.toggle('active', items[i].dataset.theme===t);
-    $('acctTheme').textContent = THEME_NAME[t]||t;
-    LS.set('theme',t);
-  }
+function msg(k) {
+  var s = T[k];
+  return (s === undefined || s === null) ? k : s;
+}
 
-  /* ---------- Toast ---------- */
-  var toastTimer = null;
-  function toast(msg, ms){
-    var el = $('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ el.classList.remove('show'); }, ms||2200);
-  }
+function esc(s) {
+  if (s === undefined || s === null) return "";
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, """);
+}
 
-  /* ---------- 音效 / 振动 ---------- */
-  var audioCtx = null;
-  function beep(kind){
-    if(state.sound){
-      try{
-        audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.type = kind==='danger' ? 'square' : 'sine';
-        o.frequency.value = kind==='danger' ? 880 : 620;
-        var t = audioCtx.currentTime;
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.16, t+0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t+0.30);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(t); o.stop(t+0.32);
-      }catch(e){}
+function toast(text) {
+  var el = $("toast");
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(function () { el.classList.remove("show"); }, 2000);
+}
+
+function jget(name, dflt) {
+  try {
+    if (bridge && typeof bridge[name] === "function") {
+      var r = bridge[name]();
+      if (typeof r === "string") return JSON.parse(r);
+      if (r && typeof r === "object") return r;
     }
-    if(state.vibe && navigator.vibrate){
-      try{ navigator.vibrate(kind==='danger'?[80,50,120]:[50]); }catch(e){}
-    }
-  }
+  } catch (e) {}
+  return dflt;
+}
 
-  /* =========================================================
-   *  FS 适配层（模拟）
-   *  真实环境替换此对象即可：只需提供 scan() 返回事件数组，
-   *  每项形如 { type:'dir'|'cmd'|'bulk', path:'...', desc:'...' }
-   * ========================================================= */
-  var SENSITIVE_PATHS = [
-    '/system', '/system/bin', '/data', '/data/data',
-    '/sdcard', '/storage/emulated/0', '/vendor', '/boot'
-  ];
-  var DANGEROUS_CMDS = ['rm -rf /', 'rm -rf /*', 'mkfs', 'wipe', 'fastboot erase', 'format'];
-
-  var FS = {
-    // 模拟真实环境的探针结果；正常状态下无异常
-    probe: function(){
-      return []; // 无异常 → 安全
-    },
-    scan: function(){
-      var events = [];
-      var found = FS.probe();
-      for(var i=0;i<found.length;i++){
-        events.push(found[i]);
+function jcall(name, dflt) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  try {
+    if (bridge && typeof bridge[name] === "function") {
+      var r = bridge[name].apply(bridge, args);
+      if (typeof r === "string") {
+        try { return JSON.parse(r); } catch (e) { return r; }
       }
-      return events;
+      if (r !== undefined && r !== null) return r;
+      return dflt;
     }
+  } catch (e) {}
+  return dflt;
+}
+
+/* ---------- 主题 ---------- */
+function applyTheme(t) {
+  if (THEMES.indexOf(t) < 0) t = "dark";
+  document.body.setAttribute("data-theme", t);
+  $("themeBtn").textContent = THEME_ICON[t];
+  $("themeVal").textContent = THEME_NAME[t];
+  try { localStorage.setItem("xg_theme", t); } catch (e) {}
+}
+function cycleTheme() {
+  var cur = document.body.getAttribute("data-theme") || "dark";
+  var i = THEMES.indexOf(cur);
+  applyTheme(THEMES[(i + 1) % THEMES.length]);
+}
+
+/* ---------- 语言 ---------- */
+function applyLang(l) {
+  if (LANGS.indexOf(l) < 0) l = "zh";
+  L = l; T = I18N[l];
+  var ids = Object.keys(T);
+  for (var i = 0; i < ids.length; i++) {
+    var k = ids[i];
+    if (k === "honestText") continue;
+    var el = $("t-" + k);
+    if (el) {
+      if (el.id === "t-editAccount" || el.id === "t-privacy" || el.id === "t-allLog") {
+        el.textContent = T[k];
+      } else {
+        el.textContent = T[k];
+      }
+    }
+  }
+  $("langVal").textContent = LANG_NAME[l] || l;
+  $("mOk").textContent = (l === "en") ? "OK" : (l === "ja" ? "OK" : "确定");
+  $("mCancel").textContent = (l === "en") ? "Cancel" : (l === "ja" ? "キャンセル" : "取消");
+  renderLangChips();
+  renderPermBanner();
+  try { localStorage.setItem("xg_lang", l); } catch (e) {}
+}
+function setLang(l) { applyLang(l); }
+function setLangNext() {
+  var i = LANGS.indexOf(L);
+  applyLang(LANGS[(i + 1) % LANGS.length]);
+}
+function renderLangChips() {
+  var box = $("langChips");
+  var html = "";
+  for (var i = 0; i < LANGS.length; i++) {
+    var l = LANGS[i];
+    html += '<div class="chip' + (l === L ? " on" : "") + '" onclick="setLang(\'' + l + '\')">' + esc(LANG_NAME[l]) + "</div>";
+  }
+  box.innerHTML = html;
+}
+
+/* ---------- 页面 ---------- */
+function go(tab) {
+  curTab = tab;
+  var pages = document.querySelectorAll(".page");
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove("active");
+  var el = $("page-" + tab);
+  if (el) el.classList.add("active");
+  var tabs = document.querySelectorAll(".tab");
+  for (var j = 0; j < tabs.length; j++) {
+    if (tabs[j].getAttribute("data-tab") === tab) tabs[j].classList.add("on");
+    else tabs[j].classList.remove("on");
+  }
+  if (tab === "sus") loadSus();
+  if (tab === "log") loadLog();
+  if (tab === "perm") renderPerms();
+  if (tab === "me") loadMe();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- 模态 ---------- */
+function openModal(title, body, onOk, okText, cancelText) {
+  $("mTitle").textContent = title;
+  $("mBody").textContent = body;
+  $("mOk").textContent = okText || $("mOk").textContent;
+  $("mCancel").textContent = cancelText || $("mCancel").textContent;
+  pendingOk = onOk;
+  $("mask").classList.add("show");
+}
+function closeModal() { $("mask").classList.remove("show"); pendingOk = null; }
+function modalOk() { var f = pendingOk; closeModal(); if (typeof f === "function") f(); }
+
+/* ---------- 状态渲染 ---------- */
+function renderStatus() {
+  var s = status || {};
+  var root = !!s.root;
+  var running = !!s.running;
+  var big, cls, text;
+  if (!root) { big = msg("noRoot"); cls = "warn"; text = msg("statNoRoot"); }
+  else if (running) { big = msg("running"); cls = "on"; text = msg("statRunning"); }
+  else { big = msg("stopped"); cls = "err"; text = msg("statStopped"); }
+  $("bigStatus").textContent = big;
+  $("statDot").className = "dot " + (cls === "on" ? "on" : cls === "warn" ? "warn" : "err");
+  $("statText").textContent = text;
+  $("runSwitch").checked = running;
+
+  var sus = Number(s.suspiciousCount || 0);
+  $("nSus").textContent = sus;
+  $("nFile").textContent = s.fileCount || 0;
+  $("nScan").textContent = s.lastScan || "--";
+
+  var badge = $("susBadge");
+  if (sus > 0) { badge.textContent = sus > 99 ? "99+" : sus; badge.classList.add("show"); }
+  else badge.classList.remove("show");
+
+  /* 横幅 */
+  var b = "";
+  if (!root) {
+    b = '<div class="banner bad"><div class="ico">🚫</div><div>' + esc(L === "en" ? "Root permission is required for deep scanning and deletion." : L === "ja" ? "深いスキャンと削除には Root 権限が必要です。" : "深度扫描和删除文件需要 Root 权限，请在系统设置中授予。") + "</div></div>";
+  } else if (!running) {
+    b = '<div class="banner warn"><div class="ico">⏸️</div><div>' + esc(L === "en" ? "Guard is off. Turn on the switch to start watching." : L === "ja" ? "見守りは停止中です。スイッチをオンにしてください。" : "守护已关闭。打开上面的开关，我就开始盯着。") + "</div></div>";
+  } else if (sus > 0) {
+    b = '<div class="banner bad"><div class="ico">⚠️</div><div>' + esc(L === "en" ? sus + " suspicious file(s) detected. Tap to review." : L === "ja" ? "要注意ファイル " + sus + " 件。タップして確認。" : "抓到 " + sus + " 个可疑文件，点「可疑」去看看。") + "</div></div>";
+  } else {
+    b = '<div class="banner ok"><div class="ico">✅</div><div>' + esc(L === "en" ? "All clear. Nothing new that looks wrong." : L === "ja" ? "異常なし。問題は見つかりません。" : "一切正常，暂时没有可疑的新面孔。") + "</div></div>";
+  }
+  $("homeBanner").innerHTML = b;
+  $("autoStartVal").textContent = s.autoStart ? msg("on") : msg("off");
+}
+
+function renderStatusJson(jsonStr) {
+  try { status = JSON.parse(jsonStr); } catch (e) { return; }
+  renderStatus();
+  if (lastSusCount !== -1 && Number(status.suspiciousCount || 0) > lastSusCount) {
+    toast(msg("msgNewFile"));
+  }
+  lastSusCount = Number(status.suspiciousCount || 0);
+}
+window.__guardxStatus = renderStatusJson;
+
+/* ---------- 首页日志 ---------- */
+function renderLogsInto(box, arr, limit) {
+  if (!arr || !arr.length) {
+    box.innerHTML = '<div class="empty"><span class="big">🗒️</span>' + esc(msg("noLog")) + "<br>" + esc(msg("noLogSub")) + "</div>";
+    return;
+  }
+  var n = Math.min(arr.length, limit || arr.length);
+  var html = "";
+  for (var i = 0; i < n; i++) {
+    var it = arr[i] || {};
+    var act = it.action || it.act || "";
+    var cls = (String(act).indexOf("删") >= 0 || String(act).toLowerCase().indexOf("del") >= 0) ? "del" : "add";
+    html += '<div class="log"><div class="act ' + cls + '">' + esc(act) + '</div><div class="body">' +
+      '<div class="nm">' + esc(it.name || it.path || "-") + "</div>" +
+      '<div class="sub">' + esc(it.time || "") + " · " + esc(it.path || "") + "</div></div></div>";
+  }
+  box.innerHTML = html;
+}
+
+/* ---------- 可疑列表 ---------- */
+function loadSus() {
+  var arr = jget("getSuspicious", []);
+  var box = $("susList");
+  if (!arr || !arr.length) {
+    box.innerHTML = '<div class="empty"><span class="big">✨</span>' + esc(msg("noSus")) + "<br>" + esc(msg("noSusSub")) + "</div>";
+    return;
+  }
+  var html = "";
+  for (var i = 0; i < arr.length; i++) {
+    var f = arr[i] || {};
+    var p = f.path || "";
+    var nm = f.name || (p.split("/").pop() || p);
+    html += '<div class="item">' +
+      '<div class="item-top"><div class="item-name">' + esc(nm) + '</div><div class="item-time">' + esc(f.time || "") + "</div></div>" +
+      '<div class="item-path">' + esc(p) + "</div>" +
+      (f.reason ? '<div class="item-reason">' + esc(f.reason) + "</div>" : "") +
+      '<div class="item-meta">' + (f.size ? "<span>大小 <b>" + esc(f.size) + "</b></span>" : "") +
+      (f.origin ? "<span>来源 <b>" + esc(f.origin) + "</b></span>" : "") + "</div>" +
+      '<div class="actions">' +
+      '<div class="btn" onclick="openSus(\'' + esc(p).replace(/'/g, "\\'") + '\')">📂 ' + esc(msg("openFile")) + "</div>" +
+      '<div class="btn ok" onclick="allowSus(\'' + esc(p).replace(/'/g, "\\'") + '\')">✅ ' + esc(msg("allow")) + "</div>" +
+      '<div class="btn danger" onclick="delSus(\'' + esc(p).replace(/'/g, "\\'") + '\')">🗑️ ' + esc(msg("del")) + "</div>" +
+      "</div></div>";
+  }
+  box.innerHTML = html;
+}
+
+function openSus(p) {
+  var r = jcall("openPath", null, p);
+  if (r === false) toast(msg("openFail"));
+}
+function allowSus(p) {
+  jcall("whitelist", null, p);
+  toast(msg("whitelisted"));
+  setTimeout(function () { loadSus(); refresh(); }, 260);
+}
+function delSus(p) {
+  openModal(T.del, T.runAsk, function () {
+    jcall("deleteSuspicious", null, p);
+    toast(msg("deleted"));
+    setTimeout(function () { loadSus(); refresh(); }, 260);
+  }, T.del);
+}
+
+/* ---------- 日志页 ---------- */
+function loadLog() {
+  var arr = jget("getLogs", []);
+  renderLogsInto($("logList"), arr, 300);
+}
+function clearLogs() {
+  openModal(T.clearLog, T.clearAsk, function () {
+    jcall("clearLogs", null);
+    toast(msg("cleared"));
+    setTimeout(loadLog, 240);
+  }, T.clearLog);
+}
+
+/* ---------- 我的页 ---------- */
+function loadMe() {
+  var dirs = jget("getDirs", []);
+  var wl = jget("getWhitelist", []);
+  $("dirTags").innerHTML = renderTags(dirs, "removeDirTag");
+  $("whiteTags").innerHTML = renderTags(wl, "removeWhiteTag");
+  var nm = "";
+  try { nm = localStorage.getItem("xg_name") || ""; } catch (e) {}
+  if (nm) { $("userName").textContent = nm; $("avatarBox").textContent = nm.charAt(0).toUpperCase(); }
+  $("verVal").textContent = "v2.0";
+  $("autoStartVal").textContent = status.autoStart ? msg("on") : msg("off");
+}
+function renderTags(arr, fn) {
+  if (!arr || !arr.length) return '<div class="gs" style="padding-bottom:10px;">-</div>';
+  var html = "";
+  for (var i = 0; i < arr.length; i++) {
+    var a = esc(arr[i]);
+    html += '<span class="tag">' + a + '<span class="x" onclick="' + fn + '(\'' + a.replace(/'/g, "\\'") + '\')">✕</span></span>';
+  }
+  return html;
+}
+function removeDirTag(p) { jcall("removeDir", null, p); toast(msg("removed")); setTimeout(loadMe, 220); }
+function removeWhiteTag(p) { jcall("unwhitelist", null, p); toast(msg("removed")); setTimeout(loadMe, 220); }
+function addDir() {
+  var v = ($("dirInput").value || "").trim();
+  if (!v || v.charAt(0) !== "/") { toast(msg("dirEmpty")); return; }
+  jcall("addDir", null, v);
+  $("dirInput").value = "";
+  toast(msg("dirAdded"));
+  setTimeout(loadMe, 220);
+}
+function openAccount() {
+  var nm = $("userName").textContent;
+  var v = window.prompt(msg("nickAsk"), nm);
+  if (v === null) return;
+  v = String(v).trim();
+  if (!v) return;
+  $("userName").textContent = v;
+  $("avatarBox").textContent = v.charAt(0).toUpperCase();
+  try { localStorage.setItem("xg_name", v); } catch (e) {}
+  toast(msg("saved"));
+}
+function toggleAutoStart() {
+  var next = !status.autoStart;
+  jcall("setAutoStart", null, next);
+  status.autoStart = next;
+  $("autoStartVal").textContent = next ? msg("on") : msg("off");
+  toast(next ? msg("on") : msg("off"));
+}
+function openPermSettings() { jcall("openAppSettings", null); }
+
+/* ---------- 权限中心 ---------- */
+function readPerms() {
+  var p = jget("getPerms", null);
+  if (p && typeof p === "object") return p;
+  return {
+    storage: !!(status && status.storage),
+    notify: !!(status && status.notify),
+    root: !!(status && status.root)
   };
+}
+function renderPermBanner() {
+  var p = readPerms();
+  var all = p.storage && p.notify && p.root;
+  $("permBanner").innerHTML = all
+    ? '<div class="banner ok"><div class="ico">🎉</div><div>' + esc(msg("permAllOk")) + "</div></div>"
+    : '<div class="banner warn"><div class="ico">🔑</div><div>' + esc(msg("permNeed")) + "</div></div>";
+}
+function permRow(kind, key, icon) {
+  var p = readPerms();
+  var ok = !!p[key];
+  return '<div class="grow" onclick="openPerm(\'' + kind + '\')">' +
+    '<div class="gico">' + icon + "</div>" +
+    '<div class="gtext"><div class="gt">' + esc(msg(key === "storage" ? "pStorage" : key === "notify" ? "pNotify" : "pRoot")) + "</div>" +
+    '<div class="gs">' + esc(msg(key === "storage" ? "pStorageSub" : key === "notify" ? "pNotifySub" : "pRootSub")) + "</div></div>" +
+    '<div style="display:flex;align-items:center;gap:8px;"><span class="pdot ' + (ok ? "ok" : "") + '"></span>' +
+    '<span class="gs" style="margin:0;">' + esc(ok ? msg("permGranted") : msg("permGo")) + "</span>" +
+    '<span class="chev">›</span></div></div>';
+}
+function renderPerms() {
+  renderPermBanner();
+  $("permList").innerHTML =
+    permRow("storage", "storage", "📁") +
+    permRow("notify", "notify", "🔔") +
+    permRow("root", "root", "🛡️");
+}
+function openPerm(kind) {
+  if (kind === "root" || kind === "storage") jcall("openPerm", null, kind);
+  else if (kind === "notify") jcall("openPerm", null, "notify");
+  else jcall("openAppSettings", null);
+  setTimeout(function () { refresh(); renderPerms(); }, 900);
+}
 
-  // 供「模拟危险」按钮注入一次随机危险事件
-  function makeFakeEvent(){
-    var r = Math.random();
-    if(r < 0.5){
-      var p = SENSITIVE_PATHS[Math.floor(Math.random()*SENSITIVE_PATHS.length)];
-      return { type:'dir', path:p, desc:'检测到对系统目录的删除请求' };
-    } else if(r < 0.8){
-      return { type:'cmd', path:DANGEROUS_CMDS[Math.floor(Math.random()*DANGEROUS_CMDS.length)],
-               desc:'拦截到高危格式化命令' };
-    }
-    return { type:'bulk', path:'/sdcard/DCIM', desc:'短时间内大量文件被删除（疑似批量清除）' };
-  }
+/* ---------- 动作 ---------- */
+function onToggleGuard(on) {
+  if (on) jcall("startGuard", null);
+  else jcall("stopGuard", null);
+  setTimeout(refresh, 700);
+}
+function doScan() {
+  toast(msg("scanning"));
+  jcall("startGuard", null);
+  setTimeout(function () { refresh(); toast(msg("scanDone")); }, 1200);
+}
+function rebuild() {
+  openModal(T.baseline, T.rebuildAsk, function () {
+    jcall("rebuildBaseline", null);
+    toast(msg("rebuildDone"));
+    setTimeout(refresh, 500);
+  }, L === "en" ? "Rebuild" : L === "ja" ? "再構築" : "重建");
+}
 
-  /* ---------- 指纹（去重键）---------- */
-  function fingerprint(ev){
-    return ev.type + '::' + ev.path;
-  }
+/* ---------- 刷新 ---------- */
+function refresh() {
+  status = jget("getStatus", status);
+  renderStatus();
+  renderLogsInto($("homeLogs"), jget("getLogs", []), 4);
+  if (curTab === "sus") loadSus();
+  if (curTab === "log") loadLog();
+  if (curTab === "perm") renderPerms();
+  if (curTab === "me") loadMe();
+}
 
-  /* ---------- 渲染：统计 ---------- */
-  function renderStats(){
-    $('stChecked').textContent = state.stats.checked;
-    $('stWarn').textContent    = state.stats.warn;
-    $('stBlock').textContent   = state.stats.block;
-    $('acctGuard').textContent = state.stats.block;
-  }
+/* ---------- 启动 ---------- */
+function boot() {
+  var th = "dark", lg = "zh", nm = "";
+  try {
+    th = localStorage.getItem("xg_theme") || "dark";
+    lg = localStorage.getItem("xg_lang") || "zh";
+    nm = localStorage.getItem("xg_name") || "";
+  } catch (e) {}
+  applyTheme(th);
+  applyLang(lg);
+  renderLangChips();
+  if (nm) { $("userName").textContent = nm; $("avatarBox").textContent = nm.charAt(0).toUpperCase(); }
+  refresh();
+  try { if (bridge && bridge.requestStorage) bridge.requestStorage(); } catch (e) {}
+  setInterval(refresh, 3000);
+}
+document.addEventListener("DOMContentLoaded", boot);
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  setTimeout(boot, 0);
+}
 
-  /* ---------- 渲染：日志 ---------- */
-  var LOG_COLOR = { dir:'var(--danger)', cmd:'var(--warn)', bulk:'var(--accent)', info:'var(--ok)' };
-  function renderLogs(){
-    var box = $('logList');
-    if(!state.logs.length){
-      box.innerHTML = '<div class="log-empty">暂无事件记录 🎉</div>';
-      return;
-    }
-    var html = '';
-    for(var i=0;i<state.logs.length;i++){
-      var lg = state.logs[i];
-      var color = LOG_COLOR[lg.level] || 'var(--text-sub)';
-      html += '<div class="log-item">'
-            +   '<span class="dot" style="background:'+color+'"></span>'
-            +   '<div class="body"><b>'+esc(lg.title)+'</b><p>'+esc(lg.detail)+'</p></div>'
-            +   '<span class="time">'+esc(lg.time)+'</span>'
-            + '</div>';
-    }
-    box.innerHTML = html;
-  }
-  function esc(s){
-    return String(s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'"',"'":'&#39;'}[c];
-    });
-  }
-
-  function addLog(level, title, detail){
-    var d = new Date();
-    var time = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
-    state.logs.unshift({ level:level, title:title, detail:detail, time:time });
-    if(state.logs.length > 80) state.logs.length = 80;
-    renderLogs();
-  }
-
-  /* ---------- 警告弹窗 ---------- */
-  var warnQueue = [];
-  var warnShowing = false;
-  function showWarn(ev){
-    warnQueue.push(ev);
-    if(!warnShowing) drainWarn();
-  }
-  function drainWarn(){
-    if(!warnQueue.length){ warnShowing = false; return; }
-    warnShowing = true;
-    var ev = warnQueue.shift();
-    $('warnTitle').textContent = ev.type==='dir' ? '检测到目录清除'
-                               : ev.type==='cmd' ? '检测到高危命令'
-                               : '检测到批量删除';
-    $('warnText').textContent  = ev.desc;
-    $('warnPath').textContent  = ev.path;
-    $('warnNote').textContent  = state.dedup
-      ? '已通知一次。为免骚扰，同一目标之后不再重复提醒。'
-      : '去重通知已关闭，该目标可能再次提醒。';
-    $('warnMask').classList.add('show');
-    beep('danger');
-  }
-  function closeWarn(){
-    $('warnMask').classList.remove('show');
-    setTimeout(function(){ drainWarn(); }, 280);
-  }
-
-  /* ---------- 核心：处理事件（含去重）---------- */
-  function handleEvent(ev){
-    var fp = fingerprint(ev);
-
-    // 规则开关过滤
-    if(ev.type==='dir'  && !state.rules.dir)  return;
-    if(ev.type==='cmd'  && !state.rules.cmd)  return;
-    if(ev.type==='bulk' && !state.rules.bulk) return;
-
-    // ★ 去重：同一指纹只提醒一次
-    if(state.dedup && state.seen.indexOf(fp) !== -1){
-      addLog('info', '已忽略（重复）', ev.path + ' · 该条目此前已提醒过');
-      return;
-    }
-    state.seen.push(fp);
-    if(state.seen.length > 500) state.seen.shift();
-
-    state.stats.warn++;
-    state.stats.block++;
-    addLog(ev.type, '🚨 ' + ev.desc, ev.path);
-    showWarn(ev);
-    persist();
-    renderStats();
-  }
-
-  /* ---------- 扫描 ---------- */
-  function runScan(silent){
-    var events = FS.scan();
-    state.stats.checked++;
-    for(var i=0;i<events.length;i++) handleEvent(events[i]);
-    renderStats();
-    persist();
-    if(!silent){
-      if(events.length) toast('扫描完成，发现 ' + events.length + ' 个风险');
-      else toast('扫描完成，未发现异常 🎉');
-    }
-  }
-
-  /* ---------- 定时器 ---------- */
-  function restartTimer(){
-    if(state.timer){ clearInterval(state.timer); state.timer = null; }
-    if(state.interval > 0){
-      state.timer = setInterval(function(){ runScan(true); }, state.interval*1000);
-    }
-    $('intervalLbl').textContent = state.interval>0
-      ? '每 ' + state.interval + ' 秒巡检一次'
-      : '后台巡检已关闭';
-  }
-
-  /* ---------- 面板控制 ---------- */
-  function openSheet(sheet, mask){
-    mask.classList.add('show');
-    sheet.classList.add('show');
-  }
-  function closeSheet(sheet, mask){
-    mask.classList.remove('show');
-    sheet.classList.remove('show');
-  }
-
-  /* ---------- 账号系统（本地演示）---------- */
-  function sha256(str){
-    // 优先用 Web Crypto，降级为简单散列（仅演示）
-    if(!window.crypto || !crypto.subtle) return 'fb_' + simpleHash(str);
-    var buf = new TextEncoder().encode(str);
-    return crypto.subtle.digest('SHA-256', buf).then(function(h){
-      return Array.prototype.map.call(new Uint8Array(h), function(b){
-        return ('00'+b.toString(16)).slice(-2);
-      }).join('');
-    });
-  }
-  function simpleHash(s){
-    var h = 5381;
-    for(var i=0;i<s.length;i++) h = ((h<<5)+h) + s.charCodeAt(i);
-    return (h>>>0).toString(16);
-  }
-
-  function renderAccount(){
-    var u = state.user;
-    if(u){
-      $('acctLoggedOut').style.display = 'none';
-      $('acctLoggedIn').style.display  = 'block';
-      $('acctName').textContent  = u.name;
-      $('acctAvatar').textContent = u.name.charAt(0).toUpperCase();
-      $('acctSince').textContent = '注册于 ' + u.since;
-    } else {
-      $('acctLoggedOut').style.display = 'block';
-      $('acctLoggedIn').style.display  = 'none';
-    }
-    renderStats();
-  }
-
-  function saveSession(u){ state.user = u; LS.set('user', u); renderAccount(); }
-
-  /* =========================================================
-   *  事件绑定
-   * ========================================================= */
-  // 顶栏 → 设置面板（长按账号也可） + 账号面板
-  $('btnAccount').addEventListener('click', function(){
-    renderAccount();
-    openSheet($('acctSheet'), $('acctMask'));
-  });
-  $('acctMask').addEventListener('click', function(){ closeSheet($('acctSheet'), $('acctMask')); });
-
-  // 双击标题打开设置（简洁不占位）
-  $('btnScan').addEventListener('click', function(){ runScan(false); });
-  $('btnSim').addEventListener('click', function(){ handleEvent(makeFakeEvent()); });
-  $('btnClearLog').addEventListener('click', function(){
-    state.logs = []; persist(); renderLogs(); toast('日志已清空');
-  });
-
-  // 规则开关
-  var swMap = [['swDir','dir'],['swCmd','cmd'],['swBulk','bulk']];
-  swMap.forEach(function(pair){
-    var el = $(pair[0]);
-    el.checked = !!state.rules[pair[1]];
-    el.addEventListener('change', function(){
-      state.rules[pair[1]] = el.checked; persist();
-      toast((el.checked?'已启用：':'已关闭：') + el.closest('.row').querySelector('b').textContent);
-    });
-  });
-
-  $('swDedup').checked = state.dedup;
-  $('swDedup').addEventListener('change', function(){
-    state.dedup = this.checked; persist();
-    toast(state.dedup ? '去重通知已开启（推荐）' : '去重通知已关闭');
-  });
-
-  $('swSound').checked = state.sound;
-  $('swSound').addEventListener('change', function(){ state.sound = this.checked; persist(); });
-  $('swVibe').checked = state.vibe;
-  $('swVibe').addEventListener('change', function(){ state.vibe = this.checked; persist(); });
-
-  $('selInterval').value = String(state.interval);
-  $('selInterval').addEventListener('change', function(){
-    state.interval = parseInt(this.value,10); persist(); restartTimer();
-  });
-
-  // 主题
-  var themeItems = document.querySelectorAll('.theme-item');
-  for(var i=0;i<themeItems.length;i++){
-    (function(el){
-      el.addEventListener('click', function(){
-        applyTheme(el.dataset.theme);
-        toast('主题已切换：' + THEME_NAME[el.dataset.theme]);
-      });
-    })(themeItems[i]);
-  }
-
-  $('btnCloseSet').addEventListener('click', function(){ closeSheet($('setSheet'), $('setMask')); });
-  $('setMask').addEventListener('click', function(){ closeSheet($('setSheet'), $('setMask')); });
-
-  // 长按品牌 → 打开设置
-  (function(){
-    var t = null;
-    var brand = document.querySelector('.brand');
-    function start(){ t = setTimeout(function(){ openSheet($('setSheet'), $('setMask')); }, 600); }
-    function stop(){ clearTimeout(t); }
-    brand.addEventListener('mousedown', start);
-    brand.addEventListener('touchstart', start);
-    brand.addEventListener('mouseup', stop);
-    brand.addEventListener('mouseleave', stop);
-    brand.addEventListener('touchend', stop);
-  })();
-
-  // 警告弹窗
-  $('btnWarnOk').addEventListener('click', closeWarn);
-  $('warnMask').addEventListener('click', function(e){ if(e.target === this) closeWarn(); });
-
-  // 账号：注册 / 登录 / 退出
-  $('btnReg').addEventListener('click', function(){
-    var name = $('inUser').value.trim();
-    var pass = $('inPass').value;
-    if(name.length < 2) return toast('用户名至少 2 个字符');
-    if(pass.length < 4) return toast('密码至少 4 位');
-    Promise.resolve(sha256(name+':'+pass)).then(function(hash){
-      var db = LS.get('accounts', {});
-      if(db[name]) return toast('该用户名已注册');
-      db[name] = { hash: hash, since: new Date().toLocaleDateString('zh-CN') };
-      LS.set('accounts', db);
-      saveSession({ name: name, since: db[name].since });
-      $('inPass').value = '';
-      toast('注册成功，已自动登录 🎉');
-    });
-  });
-
-  $('btnLogin').addEventListener('click', function(){
-    var name = $('inUser').value.trim();
-    var pass = $('inPass').value;
-    if(!name || !pass) return toast('请输入用户名与密码');
-    Promise.resolve(sha256(name+':'+pass)).then(function(hash){
-      var db = LS.get('accounts', {});
-      if(!db[name]) return toast('账号不存在，请先注册');
-      if(db[name].hash !== hash) return toast('密码错误');
-      saveSession({ name: name, since: db[name].since });
-      $('inPass').value = '';
-      toast('登录成功，欢迎回来 ' + name);
-    });
-  });
-
-  $('btnLogout').addEventListener('click', function(){
-    state.user = null; LS.del('user'); renderAccount();
-    closeSheet($('acctSheet'), $('acctMask'));
-    toast('已退出登录');
-  });
-
-  // 页面可见性：回到前台立即补扫一次（真实后台可换成原生保活）
-  document.addEventListener('visibilitychange', function(){
-    if(!document.hidden) runScan(true);
-  });
-
-  /* ---------- 启动 ---------- */
-  applyTheme(state.theme);
-  renderAccount();
-  renderLogs();
-  renderStats();
-  restartTimer();
-  setTimeout(function(){ runScan(true); }, 800);
-
-  // 暴露给控制台调试用
-  window.AWG = {
-    state: state,
-    scan: runScan,
-    simulate: function(){ handleEvent(makeFakeEvent()); },
-    reset: function(){ LS.del('seen'); LS.del('logs'); state.seen=[]; state.logs=[]; renderLogs(); toast('已重置去重记录'); }
-  };
-})();
 </script>
 </body>
 </html>
