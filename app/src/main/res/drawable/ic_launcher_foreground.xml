@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 图标前景：一枚盾牌 + 对勾，纯矢量，任何分辨率都清晰 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 盾牌外形 -->
+    <path
+        android:fillColor="#E8F5E9"
+        android:pathData="M54,26 L74,34 L74,54 C74,66 65,74 54,79 C43,74 34,66 34,54 L34,34 Z" />
+
+    <!-- 内层盾牌 -->
+    <path
+        android:fillColor="#00C853"
+        android:pathData="M54,32 L69,38 L69,54 C69,63 62,69 54,73 C46,69 39,63 39,54 L39,38 Z" />
+
+    <!-- 对勾 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,53 L52,59 L63,46 L66,49 L52,65 L43,56 Z" />
+</vector>
