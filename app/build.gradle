@@ -1,0 +1,90 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// ============================================================
+// 核心：自动生成唯一包名
+// 每次构建 applicationId 都不同 → 系统永远视为不同 App → 永不 UID 冲突
+// 也可手动传：-PappId=com.you.myapp
+// ============================================================
+def basePrefix = "com.xiaoguang"
+def stamp = new Date().format("yyMMddHHmm", TimeZone.getTimeZone("Asia/Shanghai"))
+def rnd = Integer.toHexString(new Random().nextInt(0xFFFF))
+def autoId = "${basePrefix}.a${stamp}${rnd}"
+
+def appTitle = project.findProperty("appTitle") ?: "小光守护"
+def finalAppId = project.findProperty("appId") ?: autoId
+
+android {
+    namespace 'com.auto.guardx'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId finalAppId
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        resValue "string", "app_name", appTitle
+    }
+
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("KEYSTORE_PATH")
+            if (ksPath != null && file(ksPath).exists()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KS_PASS") ?: "changeit123"
+                keyAlias System.getenv("KEY_ALIAS") ?: "mykey"
+                keyPassword System.getenv("KEY_PASS") ?: "changeit123"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            def hasRelease = System.getenv("KEYSTORE_PATH") != null &&
+                    file(System.getenv("KEYSTORE_PATH")).exists()
+            signingConfig hasRelease ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "XiaoGuang-${finalAppId}.apk"
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.24'
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+}
+
+task showAppId {
+    doLast {
+        println "=========================================="
+        println "  本次构建包名: ${finalAppId}"
+        println "  应用显示名  : ${appTitle}"
+        println "=========================================="
+    }
+}
